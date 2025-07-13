@@ -9,7 +9,7 @@ const bcrypt = require("bcrypt");
 
 const getAllUsers = asyncHandler(async (req, res) => {
   const users = await User.find().select("-password").lean();
-  if (!users) {
+  if (!users?.length) {
     return res.status(400).json({ message: "No users found" });
   }
   res.json(users);
@@ -34,7 +34,7 @@ const createNewUser = asyncHandler(async (req, res) => {
   // Hash password
   const hashedPwd = await bcrypt.hash(password, 10); // salt rounds
 
-  const userObject = { username, password: hashedPwd, roles };
+  const userObject = { username, "password": hashedPwd, roles };
 
   // Create and store new user
   const user = await User.create(userObject);
@@ -122,7 +122,7 @@ const deleteUser = asyncHandler(async (req, res) => {
 
   const result = await user.deleteOne();
 
-  const reply = `Username ${result.username} with ID ${result._id} deleted`;
+  const reply = `Username ${result.username} with ID ${result._id} deleted`
 
   res.json(reply);
 });
