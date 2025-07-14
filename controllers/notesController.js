@@ -10,7 +10,6 @@ const getAllNotes = asyncHandler(async (req, res) => {
   const notes = await Note.find().lean();
 
   // if there aren't any notes
-
   if (!notes?.length) {
     return res.status(400).json({ message: "no notes found" });
   }
@@ -25,7 +24,20 @@ const createNewNote = asyncHandler(async (req, res) => {
   if (!title || !content || !userId) {
     return res.status(400).json({ message: "All fields are required" });
   }
+  // if duplicate
+  const duplicateNote = await Note.findOne({ title, content, user: userId }).lean().exec();
+  if (duplicateNote) {
+    return res.status(400).json({ message: "Note already exists" });
+  }
+  const note = await Note.create(noteObject);
+  if (note) {
+    return res.status(201).json({ message: "Note created successfully", note });
+  } else {
+    return res.status(400).json ({ message: "Failed to create note" });
+  }
 });
+
+
 
 // @desc Update a note
 // @route PATCH /notes
@@ -42,7 +54,7 @@ const updateNote = asyncHandler(async (req, res) => {
   if (!note) {
     return res.status(400).json({ message: "Note not found" });
   }
-  const updateNote = await user.save();
+  const updateNote = await Note.save();
   res.json({ message: "Note updated successfully" });
 });
 
@@ -62,7 +74,7 @@ const deleteNote = asyncHandler(async (req, res) => {
     return res.status(400).json({ message: "Note not found" });
   }
 
-  const deletedNote = await user.deleteOne();
+  const deletedNote = await Note.deleteOne();
 
   const reply = `Note with id ${deletedNote._id} deleted successfully`;
 });
