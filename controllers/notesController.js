@@ -100,7 +100,6 @@ const deleteNote = asyncHandler(async (req, res) => {
   const reply = `Note with title ${deletedNote.title} deleted successfully`;
 
   res.json(reply);
-  
 });
 
 module.exports = {
